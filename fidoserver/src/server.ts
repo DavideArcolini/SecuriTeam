@@ -73,7 +73,7 @@ const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
 
 /* cors */
 const corsOptions = {
-    origin: 'http://localhost:5500'
+    origin: 'http://localhost:8888'
 };
 
 
