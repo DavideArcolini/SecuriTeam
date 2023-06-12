@@ -1,6 +1,7 @@
 /* --------- BACK-END SERVER ENDPOINTS INFORMATION --------- */
-const PORT          = 8001 ;
-const PREFIX_URL    = `http://localhost:${PORT}`;
+const PORT = 8001;
+const HOST = (process.env.APPLICATION_HOST) ? process.env.APPLICATION_HOST : "localhost"
+const PREFIX_URL = `http://${HOST}:${PORT}`;
 
 class apiManager {
 

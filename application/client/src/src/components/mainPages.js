@@ -1,9 +1,7 @@
 /* --------- IMPORT REACT BOOTSTRAP COMPONENTS --------- */
 import { 
-    Alert, 
     Button, 
     Container, 
-    Stack, 
     Row,
     Col
 } from 'react-bootstrap';
@@ -27,10 +25,8 @@ import {
     GreetingsNoMatch
 } from '../utilities/msgManager';
 
-/* --------- IMPORT REACT ROUTER COMPONENTS --------- */
-import { 
-    useNavigate
-} from 'react-router-dom';
+
+
 
 /**
  * Home Page when the user is not editing the study plan or is not logged in

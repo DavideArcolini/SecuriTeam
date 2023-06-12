@@ -6,46 +6,63 @@ const LocalStrategy = require('passport-local');
 const session = require('express-session');
 const { isLoggedIn } = require('./login_validator')
 const cors          = require("cors");
+const redis = require('redis')
+const redisStore = require('connect-redis').default;
 
 const corsOptions = {
-    origin: 'http://localhost:8000',
+	origin: 'http://localhost:8000',
 	credentials: true
 };
 
+const REDIS_HOST = (process.env.REDIS_HOST) ? process.env.REDIS_HOST : 'localhost';
+const REDIS_PORT = 6379;
+
+/* redis */
+const redisClient = (process.env.REDIS_HOST) ? redis.createClient({
+	url: `redis://${REDIS_HOST}:${REDIS_PORT}`
+}) : null
+
+if (process.env.REDIS_HOST) {
+	redisClient.connect()
+	.then(() => {
+		console.log(`🔌 Successfully connected to http://${REDIS_HOST}:${REDIS_PORT}`)
+	})
+	.catch((err) => {
+		console.log(`🔌 Unable to connect to http://${REDIS_HOST}:${REDIS_PORT}`)
+	})
+}
 
 /* user object with dummy data for testing purposes */
 const user = {
 	id: 1,
-  	username: 'johndoe@studenti.polito.it',
-  	password: 'password',
+	  username: 'johndoe@studenti.polito.it',
+	  password: 'password',
 };
-
 
 /* Passport strategy definition */
 passport.use(new LocalStrategy(
-    {
-        usernameField: 'username',
-        passwordField: 'password'
-    },
-    async function verify (username, password, done) {
-        if (username === user.username && password === user.password) {
+	{
+		usernameField: 'username',
+		passwordField: 'password'
+	},
+	async function verify (username, password, done) {
+		if (username === user.username && password === user.password) {
 			return done(null, user);
 		  } else {
 			return done(null, false, { message: 'Incorrect username or password' });
 		  }
-    }
+	}
 ));
 passport.serializeUser(
-    (user, callback) => {
-        callback(null, user);
-    }
+	(user, callback) => {
+		callback(null, user);
+	}
 );
 passport.deserializeUser(
-    async (user, callback) => {
-        return callback(null, user);
-    }
+	async (user, callback) => {
+		return callback(null, user);
+	}
 );
-
 
 
 // Initialize Express app
@@ -53,9 +70,15 @@ const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(session({
-  secret: "shhhhh... it's a secret!",         // sign the sessionId
-  resave: false,
-  saveUninitialized: false
+	secret: "shhhhh... it's a secret!",         // sign the sessionId
+  	resave: false,
+  	saveUninitialized: false,
+  	store: (process.env.REDIS_HOST) ? new redisStore({ 
+		host: REDIS_HOST,
+		port: REDIS_PORT,
+		client: redisClient, 
+		ttl: 86400 
+	}) : null
 }));
 app.use(passport.authenticate('session'));
 
@@ -75,7 +98,7 @@ app.post(
 	async (req, res) => {
 		console.log(`[+] User logged successfully!`)
 		return res.status(201).json({ message: 'Login successful' });
-  	}
+	  }
 );
 
 /**
@@ -91,7 +114,7 @@ app.get(
 	isLoggedIn, 
 	async (req, res) => {
 		console.log("[+] Received request to test the authorization.")
-  		return res.json({ message: 'YES' });
+		  return res.json({ message: 'YES' });
 	}
 );
 
@@ -105,13 +128,13 @@ app.get(
  * @return 200 on success, 401 on failure
  */
 app.delete(
-    '/api/logout',
-    async (request, response) => {
+	'/api/logout',
+	async (request, response) => {
 
-        request.logOut(() => {
-            response.end();
-        });
-    }
+		request.logOut(() => {
+			response.end();
+		});
+	}
 );
 
 // Start server
