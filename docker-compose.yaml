@@ -1,0 +1,43 @@
+version: '3'
+services:
+
+  application-client:
+    build:
+      context: ./application/client
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+
+  application-server:
+    build:
+      context: ./application/server
+      dockerfile: Dockerfile
+    ports:
+      - 8001:8001
+
+  broker-client:
+    build:
+      context: ./broker/client
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+
+  broker-server:
+    build:
+      context: ./broker/server
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+
+  fidoserver:
+    build:
+      context: ./fidoserver
+      dockerfile: Dockerfile
+    ports:
+      - 8181:8181
+
+  redis-stack:
+    image: redis/redis-stack:latest
+    ports:
+      - 6379:6379
+      - 8182:8001
