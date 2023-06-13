@@ -12,46 +12,32 @@
 /* --- importing modules --- */
 const express = require('express');
 const session = require('express-session');
-const redis = require('redis')
-const redisStore = require('connect-redis').default;
-const cors = require("cors");
+const cors = require('cors');
 const constants = require('./utils/constants')
 
 /* --- configuring express server --- */
 const app = express();
 app.use(express.json());
 
-/* cors */
 const corsOptions = {
-	origin: 'http://localhost:3000'
+	origin: 'http://localhost:3000',
+	credentials: true
 };
 app.use(cors(corsOptions));
-
-/* redis */
-const redisClient = redis.createClient({
-	host: constants.REDIS_HOST,
-	port: constants.REDIS_PORT
-});
-
 
 /* session */
 app.use(
 	session({
-		secret: 'secret123',
+		secret: 'SecuriTeam',
 		saveUninitialized: true,
 		resave: false,
 		cookie: {
-			maxAge: 86400000,
-			httpOnly: true, // Ensure to not expose session cookies to clientside scripts
-		},
-		store: new redisStore({ 
-			host: constants.REDIS_HOST, 
-			port: constants.REDIS_PORT, 
-			client: redisClient, 
-			ttl: 86400 
-		})
-	}),
+			httpOnly: false,
+			maxAge: 24 * 60 * 60	// 24 hours
+		}
+	})
 );
+
 
  
 /* --- configuring express routes --- */

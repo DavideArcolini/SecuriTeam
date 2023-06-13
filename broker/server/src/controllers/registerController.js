@@ -1,6 +1,5 @@
 'use strict'
 
-const { default: axios } = require('axios');
 const constants = require('../utils/constants.js');
 const responseFactory = require('../utils/response-factory.js');
 
@@ -37,7 +36,7 @@ class RegisterController {
      * REGISTER A NEW AUTHENTICATOR DEVICE
      * 
      */
-    registerAuthenticator = async (data) => {
+    registerAuthenticator = async (data, challenge) => {
 
         return fetch(
             `http://${constants.FIDO_SERVER_HOST}:8181/register`,
@@ -46,15 +45,15 @@ class RegisterController {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    data: data,
+                    challenge: challenge
+                })
             }
         ).then(async function (response) {
 
             /* managing the response */
             const registerResponse = await response.json()
-            console.log("--- BROKER: registerAuthenticator ---")
-            console.log(registerResponse);
-            console.log("--- BROKER: registerAuthenticator ---")
             return responseFactory.fabricateResponse(200, registerResponse);
             
         }).catch(function (error) {

@@ -1,27 +1,38 @@
+/**
+ *  + ------------------------------------------------------------ +
+ *  |       SecuriTeam Internal Legacy Application (server)        |
+ *  + ------------------------------------------------------------ +
+ * 
+ * This module contains the express application server that exposes 
+ * and manages the APIs for the SecuriTeam internal legacy application.
+*/
+
 'use strict'
 
+/* --- importing modules ---- */
 const express = require('express');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const session = require('express-session');
 const { isLoggedIn } = require('./login_validator')
-const cors          = require("cors");
+const cors = require("cors");
 const redis = require('redis')
 const redisStore = require('connect-redis').default;
 
+/* --- configuring express server --- */
+
+/* cors */
 const corsOptions = {
 	origin: 'http://localhost:8000',
 	credentials: true
 };
 
+/* redis */
 const REDIS_HOST = (process.env.REDIS_HOST) ? process.env.REDIS_HOST : 'localhost';
 const REDIS_PORT = 6379;
-
-/* redis */
 const redisClient = (process.env.REDIS_HOST) ? redis.createClient({
 	url: `redis://${REDIS_HOST}:${REDIS_PORT}`
 }) : null
-
 if (process.env.REDIS_HOST) {
 	redisClient.connect()
 	.then(() => {
@@ -65,12 +76,12 @@ passport.deserializeUser(
 );
 
 
-// Initialize Express app
+/* --- Express server initialization --- */
 const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(session({
-	secret: "shhhhh... it's a secret!",         // sign the sessionId
+	secret: "SecuriTeam",         
   	resave: false,
   	saveUninitialized: false,
   	store: (process.env.REDIS_HOST) ? new redisStore({ 
@@ -137,7 +148,7 @@ app.delete(
 	}
 );
 
-// Start server
+/* --- start the server --- */
 const port = 8001;
 app.listen(port, () => {
 	console.log(`🚀 SecuriTeam Internal Legacy Application (server) is now running at http://localhost:${port}`);

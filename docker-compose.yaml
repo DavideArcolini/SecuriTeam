@@ -1,6 +1,7 @@
 version: '3'
 services:
 
+  # --- REDIS (manages the shared session between browser, broker and FIDO server)
   redis-stack:
     container_name: redis
     image: redis/redis-stack:latest
@@ -8,6 +9,7 @@ services:
       - 6379:6379
       - 8182:8001
 
+  # --- React Bootstrap frontend of the Internal Legacy Application
   application-client:
     container_name: application-client
     build:
@@ -21,6 +23,7 @@ services:
     depends_on:
       - application-server
 
+  # --- JavaScript Express backend of the Internal Legacy Application
   application-server:
     container_name: application-server
     build:
@@ -34,23 +37,40 @@ services:
     depends_on:
       - redis-stack
 
+  # --- React Bootstrap frontend of the SecuriTeam Broker
   broker-client:
+    container_name: broker-client
     build:
       context: ./broker/client
       dockerfile: Dockerfile
     ports:
       - 3000:3000
+    environment:
+      - APPLICATION_HOST=broker-server
+      - APPPLICATION_PORT=3001
+    depends_on:
+      - broker-server
 
+  # --- JavaScript Express backend of the SecuriTeam Broker
   broker-server:
+    container_name: broker-server
     build:
       context: ./broker/server
       dockerfile: Dockerfile
     ports:
       - 3001:3001
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
+  # --- TypeScript Express backend of the SecuriTeam Broker
   fidoserver:
+    container_name: fidoserver
     build:
       context: ./fidoserver
       dockerfile: Dockerfile
     ports:
       - 8181:8181
+    environment:
+      - EXPECTED_HOST=broker-client
+      - EXPECTED_PORT=3000

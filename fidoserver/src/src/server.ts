@@ -18,8 +18,6 @@
 /* --- imports --- */
 import http from 'http';
 import express from 'express';
-import session from 'express-session';
-import memoryStore from 'memorystore';
 import dotenv from 'dotenv';
 
 /* configuring environment */
@@ -53,30 +51,16 @@ import { LoggedInUser } from './database';
 
 
 /* --- express generation and configuration --- */
+
 const app = express();
-/* configuring memory store */
-const MemoryStore = memoryStore(session);
 const {
+	EXPECTED_HOST,
+	EXPECTED_PORT,
   	ENABLE_CONFORMANCE,
  	ENABLE_HTTPS,
   	RP_ID = 'localhost',
 } = process.env;
-
 app.use(express.json());
-app.use(
-	session({
-	  secret: 'secret123',
-	  saveUninitialized: true,
-	  resave: false,
-	  cookie: {
-		maxAge: 86400000,
-		httpOnly: true, // Ensure to not expose session cookies to clientside scripts
-	  },
-	  store: new MemoryStore({
-		checkPeriod: 86_400_000, // prune expired entries every 24h
-	  }),
-	}),
-  );
 
 export const rpID = RP_ID;
 export let expectedOrigin = '';	/* configured at server init */
@@ -90,12 +74,6 @@ const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
     devices: [],
   },
 };
-
-
-
-/* configuring express application */
-
-
 
 /* metadata statements */
 if (ENABLE_CONFORMANCE === 'true') {
@@ -142,10 +120,8 @@ app.get('/preregister', async (request, response) => {
 	
 	/* generating options */
 	const options = generateRegistrationOptions(opts);
-  
-	/* temporary storing the challenge */
-	request.session.currentChallenge = options.challenge;
-  
+	
+	console.log(`🌀 Sending registration options for ${username}`);
 	response.send(options);
 });
 
@@ -160,13 +136,9 @@ app.get('/preregister', async (request, response) => {
 app.post('/register', async (request, response) => {
 
 	/* retrieving information */
-	const body: RegistrationResponseJSON = request.body;
+	const body: RegistrationResponseJSON = request.body.data;
 	const user = inMemoryUserDeviceDB[loggedInUserId];
-	const expectedChallenge = request.session.currentChallenge;
-
-	console.log("--- FIDO SERVER: /register ---")
-	console.log(`[!] expectedChallenge should be different than undefined (currently: ${expectedChallenge})`)
-	console.log("--- FIDO SERVER: /register ---")
+	const expectedChallenge = request.body.challenge;
   
 	/* verify the challenge */
 	let verification: VerifiedRegistrationResponse;
@@ -181,7 +153,8 @@ app.post('/register', async (request, response) => {
 	  	verification = await verifyRegistrationResponse(opts);
 	} catch (error) {
 	  	const _error = error as Error;
-	  	console.error(_error);
+	  	console.log(`❌ An error occurred. See below:`);
+		console.log(_error);
 	  	return response.status(400).send({ error: _error.message });
 	}
 	
@@ -203,9 +176,7 @@ app.post('/register', async (request, response) => {
 	 	}
 	}
 	
-	/* resetting challenge */
-	request.session.currentChallenge = undefined;
-  
+	console.log(`📱 Register new device for ${user.username} (${user.id})`);
 	response.send({ verified });
 
 });
@@ -220,9 +191,8 @@ app.post('/authenticate', (request, response) => {
 
 
 /* --- server initialization --- */
-// const host = '127.0.0.1';
 const port = 8181;
-expectedOrigin = `http://localhost:${port}`;
+expectedOrigin = `http://localhost:3000`;
 
 
 http.createServer(app).listen(port, () => {

@@ -13,13 +13,13 @@ const registerController = new RegisterController();
 router.get(
     '/preregister', 
     async (request, response) => {
-
         registerController
         .preregisterAuthenticator()
         .then(result => {
-            console.log(result.objectBody.challenge)
+
+            /* temporary storing the registration challenge */
             request.session.expectedChallenge = result.objectBody.challenge;
-            console.log(request.session)
+            console.log(`🌀 Crafting special session to keep track of the FIDO challenge`);
             return response.status(result.statusCode).json(result.objectBody);
         })
         .catch(error => {
@@ -32,12 +32,10 @@ router.get(
 router.post(
     '/register', 
     async (request, response) => {
-        console.log("[!] request.session should contain the challenge (currently: ")
-        console.log(request.session)
-
         registerController
-        .registerAuthenticator(request.body)
+        .registerAuthenticator(request.body, request.session.expectedChallenge)
         .then(result => {
+            console.log(`✅ New device registered!`);
             return response.status(result.statusCode).json(result.objectBody);
         })
         .catch(error => {

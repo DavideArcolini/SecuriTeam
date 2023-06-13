@@ -7,8 +7,6 @@ class apiManager {
 
     login = async (username, password) => {
 
-        console.log(username)
-        console.log(password)
         const url = PREFIX_URL + '/api/login';
         try {
             const response = await fetch(url, {
