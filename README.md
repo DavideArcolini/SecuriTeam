@@ -26,16 +26,20 @@ The SecuriTeam Broker simulation project consists of the following components:
 ## Development
 
 To set up the development environment for the SecuriTeam Broker project, follow these steps:
-- Clone the repository: git clone https://github.com/<username>/SecuriTeam-Broker.git
-- Install the necessary dependencies:
-  - For the web application, navigate to the web-app directory and run `npm install`.
-  - For the FIDO server, go to the fido-server directory and run `npm install`.
-  - For the broker, navigate to the broker directory and run `npm install`.
-- Start the development servers:
-  - For the web application, navigate to the web-app directory and run `npm start`.
-  - For the FIDO server, go to the fido-server directory and run `npm start`.
-  - For the broker, navigate to the broker directory and run `npm start`.
-- Access the web application in your browser at `http://localhost:8001`.
+- Clone the repository: git clone https://github.com/DavideArcolini/SecuriTeam.git
+- Install the required packages with `npm`. In particular, navigate to: 
+  - `application/client/src` and run `npm install`;
+  - `application/server/src` and run `npm install`;
+  - `broker/client/src` and run `npm install`;
+  - `broker/server/src` and run `npm install`;
+  - `fidoserver/server/src` and run `npm install`;
+- Run the development servers with `npm`. In particular, navigate to:
+  - `application/server/src` and run `npm run develop`;
+  - `broker/server/src` and run `npm ruun develop`;
+  - `fidoserver/server/src` and run `npm run develop`;
+- Run the web clients with `npm`. In particular, navigate to:
+  - `application/client/src` and run `npm start`;
+  - `broker/client/src` and run `npm start`;
 
 ## Deployments
 
