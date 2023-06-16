@@ -15,7 +15,7 @@ SecuriTeam Broker is a comprehensive solution designed to facilitate passwordles
 
 ## Components
 
-The SecuriTeam Broker project consists of the following components:
+The SecuriTeam Broker simulation project consists of the following components:
 
 - `webapp`: it represents the Internal Legacy Application of the company. It consists of:
   - React client: A user-friendly front-end application for interacting with the system.
@@ -39,8 +39,20 @@ To set up the development environment for the SecuriTeam Broker project, follow 
 
 ## Deployments
 
-Currently, the SecuriTeam Broker project does not have any specific deployment instructions. However, you can deploy the individual components (web application, FIDO server, and broker) using your preferred hosting platform or infrastructure.
-Acknowledgements
+It is possible to deploy the whole infrastructure using `docker-compose`, by running, at the root of this repository, the following command:
+```bash
+docker-compose up
+```
+
+This will instantiate all the docker containers in a auto-configured and auto-managed networked docker infrastructure. If you want to set up only a subset of the components, you can run:
+```bash
+docker-compose up <component> <component> <...>
+```
+where `<component>` can be obtained directly from the `docker-compose.yaml` file.
+
+
+### Requirements
+In order to run `docker-compose` it is necessary to have Docker installed and running on the machine. To install and run Docker is outside of the scope of this simulation. You can follow the official installation guide at this page: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
 
 ## Acknowledges
 We would like to express our sincere gratitude to Aruba S.p.A for sponsoring the **Challenge@PoliTo By Firms: Become Passwordless** and providing the opportunity to work on this project. Additionally, we would like to thank the entire SecuriTeam (Team 4) for their hard work and dedication in bringing this project to fruition.
