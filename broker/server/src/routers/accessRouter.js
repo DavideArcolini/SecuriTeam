@@ -15,6 +15,10 @@ router.post(
         accessController
         .preauthenticateEmployee(request.params.port, request.body.username, request.body.password)
         .then(result => {
+
+            /* temporary storing the authentication challenge */
+            request.session.expectedChallenge = result.objectBody.data.challenge;
+            console.log(`🌀 Crafting special session to keep track of the FIDO challenge`);
             return response.status(result.statusCode).json(result.objectBody);
         })
         .catch(error => {
@@ -28,8 +32,9 @@ router.post(
     '/authenticate/:port',
     async (request, response) => {
         accessController
-        .authenticateEmployee(request.params.port, request.body)
+        .authenticateEmployee(request.params.port, request.body, request.session.expectedChallenge)
         .then(result => {
+            console.log(`✅ Device authenticated!`);
             return response.status(result.statusCode).json(result.objectBody);
         })
         .catch(error => {

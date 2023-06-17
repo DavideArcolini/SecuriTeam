@@ -1,4 +1,3 @@
-/* --------- IMPORT REACT BOOTSTRAP COMPONENTS --------- */
 import { 
     Button, 
     Container, 
@@ -6,7 +5,10 @@ import {
     Col
 } from 'react-bootstrap';
 
-/* --------- IMPORT CUSTOMIZED COMPONENTS --------- */
+import { 
+    useNavigate
+} from 'react-router-dom';
+
 import { 
     NavigationBar 
 } from './navigationBar';
@@ -16,8 +18,14 @@ import {
     GreetingsNoMatch
 } from '../utilities/msgManager';
 
+import {
+    LoginForm
+} from './loginForm'
+
 
 function Dashboard(props) {
+
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -41,7 +49,7 @@ function Dashboard(props) {
 
                             <Row className="justify-content-md-center">
                                 {props.hasAuthenticator && 
-                                <Button variant="success" size="lg" onClick={props.login}>
+                                <Button variant="success" size="lg" onClick={() => {navigate('/login')}}>
                                     Login to application
                                 </Button>
                                 }
@@ -121,4 +129,26 @@ function NoMatchPage(props) {
     );
 }
 
-export { NoMatchPage, Dashboard };
+function LoginPage(props) {
+    return (
+        <div>
+            {/* NAVIGATION BAR */}
+            <div style={{ marginBottom: '40px' }}>
+                <NavigationBar />
+            </div> 
+
+            
+
+            {/* LOGIN FORM */}
+            <div>
+                <Row className="justify-content-md-center">
+                    <Col md="4" className='text-center'>
+                        <LoginForm login={props.login} />
+                    </Col>
+                </Row>
+            </div>
+        </div>
+    );
+}
+
+export { NoMatchPage, Dashboard, LoginPage };

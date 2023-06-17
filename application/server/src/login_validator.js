@@ -3,6 +3,8 @@
 
 function isLoggedIn(request, response, next) {
 
+    console.log(request)
+
     if (request.isAuthenticated()) {
         next();
     } else {

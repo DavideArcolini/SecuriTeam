@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_PATH=./build node build/server.js",
     "build": "tsc -p .",
-    "develop": "NODE_PATH=./build nodemon --exec 'ts-node' build/server.js"
+    "develop": "nodemon --exec 'ts-node' src/server.ts"
   },
   "keywords": [],
   "author": "SecuriTeam",

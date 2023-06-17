@@ -3,7 +3,12 @@
 module.exports = Object.freeze({
 
     /* FIDO SERVER */
-    FIDO_SERVER_HOST: (process.env.DOCKERCOMPOSE == "true") ? "fidoserver" : "localhost",
+    FIDOSERVER_HOST: (process.env.FIDOSERVER_HOST) ? process.env.FIDOSERVER_HOST : "localhost",
+    FIDOSERVER_PORT: (process.env.FIDOSERVER_PORT) ? process.env.FIDOSERVER_PORT : "8181",
+
+
+    /* APPLICATION SERVER */
+    APPLICATION_HOST: (process.env.APPLICATION_HOST) ? process.env.APPLICATION_HOST : "localhost",
 
     /* REDIS SERVER */
     REDIS_HOST: "redis-stack",

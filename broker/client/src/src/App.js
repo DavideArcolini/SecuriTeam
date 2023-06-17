@@ -13,7 +13,8 @@ import {
 
 import { 
     NoMatchPage,
-    Dashboard
+    Dashboard,
+    LoginPage
 } from './components/mainPages';
 
 import {
@@ -43,8 +44,20 @@ function App() {
     }
   }
 
-  const login = async () => {
-    console.log("--- START LOGIN PROCEDURE ---")
+  const login = async (credentials) => {
+    const result = await apiManager.loginToApplication(credentials);
+    if (result) {
+      const cookie = result;
+      const headers = new Headers();
+      headers.append('cookie', cookie);
+      const url = `http://localhost:8000`
+      fetch(url, {
+        headers: headers
+      }
+      ).then(() => {window.location.href = url})
+    } else {
+      console.log("Auth FAIl")
+    }
   }
 
 
@@ -54,7 +67,10 @@ function App() {
         <Routes>
 
             {/* --- ROOT --- */}
-            <Route path='/' element = {<Dashboard showToast={showToast} setShowToast={setShowToast} successToast={successToast} hasAuthenticator={hasAuthenticator} registerAuthenticator={registerAuthenticator} login={login} message={message}/>} />
+            <Route path='/' element = {<Dashboard showToast={showToast} setShowToast={setShowToast} successToast={successToast} hasAuthenticator={hasAuthenticator} registerAuthenticator={registerAuthenticator} message={message}/>} />
+
+            {/* --- LOGIN PAGE --- */}
+            <Route path='/login' element = {<LoginPage login={login} />}/>
 
             {/* --- PAGE NOT FOUND --- */}
             <Route path='*' element={<NoMatchPage />} />         

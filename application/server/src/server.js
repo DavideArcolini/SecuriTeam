@@ -125,7 +125,8 @@ app.get(
 	isLoggedIn, 
 	async (req, res) => {
 		console.log("[+] Received request to test the authorization.")
-		  return res.json({ message: 'YES' });
+		console.log(req.headers)
+		return res.json({ message: 'YES' });
 	}
 );
 

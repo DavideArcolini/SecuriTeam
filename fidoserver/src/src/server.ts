@@ -48,6 +48,7 @@ import type {
 
 /* user-authenticators association */
 import { LoggedInUser } from './database';
+import base64url from 'base64url';
 
 
 /* --- express generation and configuration --- */
@@ -183,10 +184,74 @@ app.post('/register', async (request, response) => {
 
 app.get('/preauthenticate', (request, response) => {
 
+	const user = inMemoryUserDeviceDB[loggedInUserId];
+
+	const opts: GenerateAuthenticationOptionsOpts = {
+		timeout: 60000,
+		allowCredentials: user.devices.map(dev => ({
+		  	id: dev.credentialID,
+		  	type: 'public-key',
+		  	transports: dev.transports,
+		})),
+		userVerification: 'required',
+		rpID,
+	};
+	
+	const options = generateAuthenticationOptions(opts);
+
+	console.log(`🌀 Sending authentication options for ${user.username}`);
+	response.send(options);
+
 });
 
-app.post('/authenticate', (request, response) => {
+app.post('/authenticate', async (request, response) => {
 
+	/* retrieving information */
+	const body: AuthenticationResponseJSON = request.body.data;
+	const user = inMemoryUserDeviceDB[loggedInUserId];
+	const expectedChallenge = request.body.challenge;
+
+	/* "Query the DB" here for an authenticator matching `credentialID` */
+	let dbAuthenticator;
+  	const bodyCredIDBuffer = base64url.toBuffer(body.rawId);
+  	for (const dev of user.devices) {
+    	if (isoUint8Array.areEqual(dev.credentialID, bodyCredIDBuffer)) {
+      		dbAuthenticator = dev;
+      		break;
+    	}
+  	}
+	if (!dbAuthenticator) {
+		return response.status(400).send({ error: 'Authenticator is not registered with this site' });
+	}
+
+	/* verify the challenge */
+	let verification: VerifiedAuthenticationResponse;
+  	try {
+    	const opts: VerifyAuthenticationResponseOpts = {
+      		response: body,
+      		expectedChallenge: `${expectedChallenge}`,
+      		expectedOrigin,
+      		expectedRPID: rpID,
+      		authenticator: dbAuthenticator,
+      		requireUserVerification: true,
+    	};
+    	verification = await verifyAuthenticationResponse(opts);
+  	} catch (error) {
+    	const _error = error as Error;
+		console.log(`❌ An error occurred. See below:`);
+    	console.error(_error);
+    	return response.status(400).send({ error: _error.message });
+  	}
+
+	/* result post-operation */
+	const { verified, authenticationInfo } = verification;
+  	if (verified) {
+    	/* update the authenticator's counter in the DB to the newest count in the authentication */
+    	dbAuthenticator.counter = authenticationInfo.newCounter;
+  	}
+
+	console.log(`📱 Authenticated device for ${user.username} (${user.id})`);
+	response.send({ verified });
 });
 
 
@@ -196,5 +261,7 @@ expectedOrigin = `http://localhost:3000`;
 
 
 http.createServer(app).listen(port, () => {
-    console.log(`🚀 StrongKey (mock) FIDO Server is now running at ${expectedOrigin}`);
+    console.log(`🚀 StrongKey (mock) FIDO Server is now running at ${
+		process.env.dockercompose ? "fidoserver:8181" : "localhost:8181"
+	}`);
 });

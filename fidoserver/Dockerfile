@@ -20,4 +20,6 @@ FROM base
 
 COPY --from=production /app/build /app/build
 
+ENV dockercompose=true
+
 CMD ["npm", "start"]

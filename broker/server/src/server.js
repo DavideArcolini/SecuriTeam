@@ -41,11 +41,9 @@ app.use(
 
  
 /* --- configuring express routes --- */
-const adminRouter = require('./routers/adminRouter.js');
 const accessRouter = require('./routers/accessRouter.js');
 const registerRouter = require('./routers/registerRouter.js');
 const proxyRouter = require('./routers/proxyRouter.js');
-app.use('/admin', adminRouter);
 app.use('/auth', accessRouter);
 app.use('/register', registerRouter);
 app.use('/proxy', proxyRouter);

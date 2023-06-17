@@ -60,6 +60,9 @@ services:
     ports:
       - 3001:3001
     environment:
+      - APPLICATION_HOST=application-server
+      - FIDOSERVER_HOST=fidoserver
+      - FIDOSERVER_PORT=8181
       - REDIS_HOST=redis
       - REDIS_PORT=6379
 

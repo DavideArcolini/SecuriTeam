@@ -13,7 +13,7 @@ class RegisterController {
     preregisterAuthenticator = async () => {
 
         return fetch(
-            `http://${constants.FIDO_SERVER_HOST}:8181/preregister`,
+            `http://${constants.FIDOSERVER_HOST}:8181/preregister`,
             {
                 method: 'GET'
             }
@@ -39,7 +39,7 @@ class RegisterController {
     registerAuthenticator = async (data, challenge) => {
 
         return fetch(
-            `http://${constants.FIDO_SERVER_HOST}:8181/register`,
+            `http://${constants.FIDOSERVER_HOST}:8181/register`,
             {
                 method: 'POST',
                 headers: {

@@ -54,6 +54,8 @@ docker-compose up <component> <component> <...>
 ```
 where `<component>` can be obtained directly from the `docker-compose.yaml` file.
 
+> Please note: this operation may take from 5 to 20 minutes based on your internet connection.
+
 
 ### Requirements
 In order to run `docker-compose` it is necessary to have Docker installed and running on the machine. To install and run Docker is outside of the scope of this simulation. You can follow the official installation guide at this page: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)

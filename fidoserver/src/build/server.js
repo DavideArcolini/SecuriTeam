@@ -53,7 +53,7 @@ const server_1 = require("@simplewebauthn/server");
 const helpers_1 = require("@simplewebauthn/server/helpers");
 /* --- express generation and configuration --- */
 const app = (0, express_1.default)();
-const { ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = 'localhost', } = process.env;
+const { EXPECTED_HOST, EXPECTED_PORT, ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = 'localhost', } = process.env;
 app.use(express_1.default.json());
 exports.rpID = RP_ID;
 exports.expectedOrigin = ''; /* configured at server init */
@@ -104,6 +104,7 @@ app.get('/preregister', async (request, response) => {
     };
     /* generating options */
     const options = (0, server_1.generateRegistrationOptions)(opts);
+    console.log(`🌀 Sending registration options for ${username}`);
     response.send(options);
 });
 /**
@@ -131,7 +132,8 @@ app.post('/register', async (request, response) => {
     }
     catch (error) {
         const _error = error;
-        console.error(_error);
+        console.log(`❌ An error occurred. See below:`);
+        console.log(_error);
         return response.status(400).send({ error: _error.message });
     }
     /* result analysis */
@@ -150,6 +152,7 @@ app.post('/register', async (request, response) => {
             user.devices.push(newDevice);
         }
     }
+    console.log(`📱 Register new device for ${user.username} (${user.id})`);
     response.send({ verified });
 });
 app.get('/preauthenticate', (request, response) => {
@@ -157,10 +160,9 @@ app.get('/preauthenticate', (request, response) => {
 app.post('/authenticate', (request, response) => {
 });
 /* --- server initialization --- */
-// const host = '127.0.0.1';
 const port = 8181;
 exports.expectedOrigin = `http://localhost:3000`;
 http_1.default.createServer(app).listen(port, () => {
-    console.log(`🚀 StrongKey (mock) FIDO Server is now running at ${exports.expectedOrigin}`);
+    console.log(`🚀 StrongKey (mock) FIDO Server is now running at ${process.env.dockercompose ? "fidoserver:8181" : "localhost:8181"}`);
 });
 //# sourceMappingURL=server.js.map
